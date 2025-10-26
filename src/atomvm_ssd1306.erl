@@ -110,7 +110,7 @@ handle_continue(init_display, #state{i2c_handle = I2c, resolution = '128x32', de
     {noreply, State}.
 
 
-handle_call({display, Segment, Page, Buffer}, _From, #state{i2c_handle = I2c, device_address = DeviceAddress} = State) ->
+handle_call({display, Page, Segment, Buffer}, _From, #state{i2c_handle = I2c, device_address = DeviceAddress} = State) ->
     ColumnLow = Segment band 16#0F,
     ColumnHigh = (Segment bsr 4) band 16#0F,
     i2c:begin_transmission(I2c, DeviceAddress),
