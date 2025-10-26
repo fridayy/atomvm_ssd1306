@@ -107,7 +107,7 @@ handle_continue(init_display, #state{i2c_handle = I2c, resolution = '128x32', de
                           i2c:write_byte(I2c, Cmd)
                   end, ?SSD1306_128x32_INIT_CMDS),
     i2c:end_transmission(I2c),
-    {ok, State}.
+    {noreply, State}.
 
 
 handle_call({display, Segment, Page, Buffer}, _From, #state{i2c_handle = I2c, device_address = DeviceAddress} = State) ->
