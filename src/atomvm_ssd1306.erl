@@ -3,7 +3,7 @@
 -behaviour(gen_server).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_continue/2]).
--export([start_link/0, start_link/1, display_text/2]).
+-export([start_link/0, start_link/1, display_text/3, clear_page/2, clear_display/1]).
 
 
 -include("ssd1306.hrl").
@@ -65,15 +65,24 @@ start_link() ->
 start_link(Opts) ->
     gen_server:start_link(?MODULE, Opts, []).
 
--spec display_text(Page :: 0..8, Binary :: binary()) -> ok.
-display_text(Page, Binary) ->
+-spec display_text(Pid :: pid(), Page :: 0..8, Binary :: binary()) -> ok.
+display_text(Pid, Page, Binary) ->
     Text = binary_to_list(Binary),
     lists:foldl(fun(Char, Acc) -> 
                           Buffer = lists:nth(Char + 1, ?font8x8_basic_lut),
-                          gen_server:call(?MODULE, {display, Page, Acc, Buffer}),
+                          gen_server:call(Pid, {display, Page, Acc, Buffer}),
                           Acc + 8
                   end, 0, Text),
     ok.
+
+clear_page(Pid, Page) ->
+    display_text(Pid, Page, binary:copy(<<" ">>, 16)).
+
+clear_display(Pid) ->
+    display_text(Pid, 0, binary:copy(<<" ">>, 16)),
+    display_text(Pid, 1, binary:copy(<<" ">>, 16)),
+    display_text(Pid, 2, binary:copy(<<" ">>, 16)),
+    display_text(Pid, 3, binary:copy(<<" ">>, 16)).
 
 %% gen_server callbacks
 init(Opts) ->
